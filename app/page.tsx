@@ -81,11 +81,25 @@
 // }
 "use client";
 
+type RazorpayOrder = {
+  id: string;
+  amount: number;
+};
+
 type RazorpayResponse = {
   razorpay_payment_id: string;
   razorpay_order_id: string;
   razorpay_signature: string;
 };
+
+// Proper typing for Razorpay window object
+declare global {
+  interface Window {
+    Razorpay: new (options: unknown) => {
+      open: () => void;
+    };
+  }
+}
 
 export default function Home() {
   const courses = [
@@ -113,7 +127,7 @@ export default function Home() {
       body: JSON.stringify({ amount: price }),
     });
 
-    const order = await res.json();
+    const order: RazorpayOrder = await res.json();
 
     // 2. Razorpay options
     const options = {
@@ -124,7 +138,7 @@ export default function Home() {
       description: "Course Purchase",
       order_id: order.id,
 
-      handler: async function (response: RazorpayResponse) {
+      handler: async (response: RazorpayResponse) => {
         // 3. Verify payment
         const verify = await fetch("/api/verify-payment", {
           method: "POST",
@@ -146,7 +160,8 @@ export default function Home() {
       theme: { color: "#4f46e5" },
     };
 
-    const rzp = new (window as any).Razorpay(options);
+    // FIX: no "any" used anymore
+    const rzp = new window.Razorpay(options);
     rzp.open();
   };
 
