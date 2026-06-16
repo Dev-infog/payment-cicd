@@ -25,3 +25,6 @@ jobs:
 
       - name: Build Project
         run: npm run build
+        env:
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
